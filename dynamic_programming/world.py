@@ -157,7 +157,11 @@ class Gridworld:
       return False
 
 
-def printg(grid):
+def printgrid(grid):
+  printpolicy(grid, grid.actions)
+
+
+def printpolicy(grid, policy):
   rows = grid.map.shape[0]
   cols = grid.map.shape[1]
   block_str = "|{:^3}{:^3}{:^3}|"
@@ -165,10 +169,10 @@ def printg(grid):
   base_div = " --------- "
   for i in range(rows):
     print(base_div*cols)
-    up = ["" if "U" not in grid.actions.get((i, cj), []) else U_CHR for cj in range(cols)]
-    left = ["" if "L" not in grid.actions.get((i, cj), []) else L_CHR for cj in range(cols)]
-    right = ["" if "R" not in grid.actions.get((i, cj), []) else R_CHR for cj in range(cols)]
-    down = ["" if "D" not in grid.actions.get((i, cj), []) else D_CHR for cj in range(cols)]
+    up = ["" if "U" not in policy.get((i, cj), []) else U_CHR for cj in range(cols)]
+    left = ["" if "L" not in policy.get((i, cj), []) else L_CHR for cj in range(cols)]
+    right = ["" if "R" not in policy.get((i, cj), []) else R_CHR for cj in range(cols)]
+    down = ["" if "D" not in policy.get((i, cj), []) else D_CHR for cj in range(cols)]
     empty = ["" if (i, cj) != grid.position else HERE_CHR for cj in range(cols)]
     for j in range(cols):
       if (i, j) in grid.walls:
@@ -196,3 +200,10 @@ def standard_grid():
   rewards = {(0, 3): 1, (1, 3): -1}
   g = Gridworld(3, 4, rewards, [(1, 1)], (2, 0))
   return g
+
+def test_grid():
+  g = standard_grid()
+  printpolicy(g, g.actions)
+  policy = {(2,0): "U", (1, 0): "U", (0, 0): "R", (0, 1): "R",
+            (0, 2): "R", (1, 2): "U", (2, 1): "R", (2, 2): "U", (2, 3): "L"}
+  printpolicy(g, policy)
