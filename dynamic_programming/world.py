@@ -97,6 +97,9 @@ class Gridworld:
         actions[(i, j)] = set(current_actions)
     return actions
 
+  def set_value(self, state, value):
+    self.map[state[0]][state[1]] = value
+
   def current_state(self):
     return self.position
 
@@ -136,21 +139,56 @@ class Gridworld:
     else:
       print("God mode position is not valid!")
 
-  def get_next_state(self, action):
-    new_position = (0, 0)
+  def get_next_state_relative(self, action):
+    """Returns next state based on the latest position.
+
+    Args:
+      action:
+
+    Returns:
+
+    """
+    i = self.position[0]
+    j = self.position[1]
     if action in self.actions[self.position]:
-      if action == "R":
-        i = self.position[1] + 1
-      elif action == "L":
-        i = self.position[1] - 1
-      elif action == "U":
-        j = self.position[0] - 1
+      if action == "U":
+        i = self.position[0] - 1
       elif action == "D":
-        j = self.position[0] + 1
+        i = self.position[0] + 1
+      elif action == "R":
+        j = self.position[1] + 1
+      elif action == "L":
+        j = self.position[1] - 1
       new_position = (i, j)
       return new_position
     else:
-      return self.position
+      return None
+
+  def get_next_state_absolute(self, state, action):
+    """Returns next state based on the selected state and action.
+
+    Args:
+      state:
+      action:
+
+    Returns:
+
+    """
+    if action in self.actions[state]:
+      i = state[0]
+      j = state[1]
+      if action == "U":
+        i = state[0] - 1
+      elif action == "D":
+        i = state[0] + 1
+      elif action == "R":
+        j = state[1] + 1
+      elif action == "L":
+        j = state[1] - 1
+      new_position = (i, j)
+      return new_position
+    else:
+      return None
 
   def game_over(self):
     #TODO: Change this terminal accordingly
@@ -162,6 +200,9 @@ class Gridworld:
   def all_states(self):
     return self.map
 
+  def print(self):
+    printgrid(self)
+
 
 def printgrid(grid):
   printpolicy(grid, grid.actions)
@@ -170,9 +211,9 @@ def printgrid(grid):
 def printpolicy(grid, policy):
   rows = grid.map.shape[0]
   cols = grid.map.shape[1]
-  block_str = "|{:^3}{:^3}{:^3}|"
-  wall_block = "|{}|".format(BLOCK_CHR*9)
-  base_div = " --------- "
+  block_str = "|{:^3}{:^6}{:^3}|"
+  wall_block = "|{}|".format(BLOCK_CHR*12)
+  base_div = " ------------ "
   for i in range(rows):
     print(base_div*cols)
     up = ["" if "U" not in policy.get((i, cj), []) else U_CHR for cj in range(cols)]
@@ -190,7 +231,7 @@ def printpolicy(grid, policy):
       if (i, j) in grid.walls:
         print(wall_block, end="")
       else:
-        print(block_str.format(left[j], grid.rewards.get((i, j), 0), right[j]), end="")
+        print(block_str.format(left[j], np.around(grid.map[i][j], 4), right[j]), end="")
     print()
     for j in range(cols):
       if (i, j) in grid.walls:
