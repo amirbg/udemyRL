@@ -3,7 +3,7 @@ import numpy as np
 
 import world
 
-def run(grid, policy, gamma=.9, stop_threshold=.05):
+def run(grid, policy, gamma=.9, stop_threshold=.001):
   max_change = 1000
   states = grid.all_states()
   action_space = policy
@@ -12,9 +12,6 @@ def run(grid, policy, gamma=.9, stop_threshold=.05):
   iii = 0
   while max_change > stop_threshold:
     iii += 1
-    if iii % 1000 == 0:
-      import pdb;
-      pdb.set_trace();
     max_change = 0
     for i in range(states.shape[0]):
       for j in range(states.shape[1]):
@@ -25,11 +22,11 @@ def run(grid, policy, gamma=.9, stop_threshold=.05):
           continue
         for a in possible_actions:
           next_s = grid.get_next_state_absolute(current_s, a)
-          reward = grid.map[next_s[0]][next_s[1]]
+          value = grid.map[next_s[0]][next_s[1]]
+          reward = grid.rewards.get(next_s, 0)
           transition_probability[(current_s, a, next_s)] = 1
-          rewards[(current_s, a, next_s)] = reward*gamma
-          new_val += reward
-        new_val = gamma*(new_val/len(possible_actions))
+          rewards[(current_s, a, next_s)] = reward
+          new_val = new_val + transition_probability[(current_s, a, next_s)]*(reward + gamma*value)
         diff = np.abs(grid.map[current_s[0]][current_s[1]] - new_val)
         grid.set_value(current_s, new_val)
         # grid.rewards[current_s] = new_val

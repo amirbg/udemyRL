@@ -43,7 +43,7 @@ class Gridworld:
         terminal_states.append(k)
     for i in range(self.map.shape[0]):
       for j in range(self.map.shape[1]):
-        self.map[i][j] = rewards.get((i, j), 0)
+        self.map[i][j] = 0
     actions = self._generate_actions(walls, terminal_states)
     self.rewards = rewards
     return actions, rewards
