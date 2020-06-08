@@ -41,6 +41,9 @@ class Gridworld:
     for k in rewards.keys():
       if rewards[k] in [terminal_success_val, terminal_failure_val]:
         terminal_states.append(k)
+    for i in range(self.map.shape[0]):
+      for j in range(self.map.shape[1]):
+        self.map[i][j] = rewards.get((i, j), 0)
     actions = self._generate_actions(walls, terminal_states)
     self.rewards = rewards
     return actions, rewards
@@ -155,6 +158,9 @@ class Gridworld:
       return True
     else:
       return False
+
+  def all_states(self):
+    return self.map
 
 
 def printgrid(grid):
