@@ -91,21 +91,26 @@ class Gridworld:
   def move(self, direction):
     # TODO: Add no possible movements in the terminal states of failure or triumph!
     possible_actions = self.actions[self.position]
+    current_position = list(self.position)
     if direction not in possible_actions:
       print("Invalid movement.")
     else:
       if direction == "R":
-        self.position[1] += 1
+        current_position[1] += 1
       elif direction == "L":
-        self.position[1] -= 1
+        current_position[1] -= 1
       elif direction == "U":
-        self.position[0] -= 1
+        current_position[0] -= 1
       elif direction == "D":
-        self.position[0] += 1
+        current_position[0] += 1
       else:
         print("Invalid movement.")
+      self.position = tuple(current_position)
     # TODO: check if the state is a final state
-    reward = self.rewards[self.position]
+    try:
+      reward = self.rewards[self.position]
+    except KeyError:
+      reward = 0
     return reward
 
   def undo_move(self):
