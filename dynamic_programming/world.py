@@ -1,6 +1,14 @@
 
 import numpy as np
 
+L_CHR = u"\u2190"
+U_CHR = u"\u2191"
+R_CHR = u"\u2192"
+D_CHR = u"\u2193"
+BLOCK_CHR = u"\u25A0"
+HERE_CHR = u"\u0040"
+TERM_CHR = u"\u002A"
+
 class Gridworld:
   def __init__(self, rows, cols, rewards, walls, start_position=None):
     """Gridworld constructor.
@@ -23,6 +31,7 @@ class Gridworld:
       ))
     if isinstance(start_position, int):
       current_state = start_position
+    self.walls = walls
     # TODO: Add more complext positioning if needed
     self.actions, self.rewards = self.setup_map(rewards, walls)
 
@@ -49,7 +58,7 @@ class Gridworld:
     movements = ["U", "D", "L", "R"]
     for i in range(rows):
       for j in range(cols):
-        if (i, j) in terminal_states:
+        if (i, j) in terminal_states or (i, j) in walls:
           continue
         current_actions = movements[:]
         # Checking default walls.
@@ -148,7 +157,42 @@ class Gridworld:
       return False
 
 
+def printg(grid):
+  rows = grid.map.shape[0]
+  cols = grid.map.shape[1]
+  block_str = "|{:^3}{:^3}{:^3}|"
+  wall_block = "|{}|".format(BLOCK_CHR*9)
+  base_div = " --------- "
+  for i in range(rows):
+    print(base_div*cols)
+    up = ["" if "U" not in grid.actions.get((i, cj), []) else U_CHR for cj in range(cols)]
+    left = ["" if "L" not in grid.actions.get((i, cj), []) else L_CHR for cj in range(cols)]
+    right = ["" if "R" not in grid.actions.get((i, cj), []) else R_CHR for cj in range(cols)]
+    down = ["" if "D" not in grid.actions.get((i, cj), []) else D_CHR for cj in range(cols)]
+    empty = ["" if (i, cj) != grid.position else HERE_CHR for cj in range(cols)]
+    for j in range(cols):
+      if (i, j) in grid.walls:
+        print(wall_block, end="")
+      else:
+        print(block_str.format(empty[j], up[j], empty[j]), end="")
+    print()
+    for j in range(cols):
+      if (i, j) in grid.walls:
+        print(wall_block, end="")
+      else:
+        print(block_str.format(left[j], grid.rewards.get((i, j), 0), right[j]), end="")
+    print()
+    for j in range(cols):
+      if (i, j) in grid.walls:
+        print(wall_block, end="")
+      else:
+        print(block_str.format(empty[j], down[j], empty[j]), end="")
+    print()
+  print(base_div*cols)
+
+
+
 def standard_grid():
   rewards = {(0, 3): 1, (1, 3): -1}
-  g = Gridworld(3, 4, rewards, (1, 1), (2, 0))
+  g = Gridworld(3, 4, rewards, [(1, 1)], (2, 0))
   return g
