@@ -80,6 +80,46 @@ def run_windy(grid, policy, env_probs, gamma=.9, stop_threshold=.001):
   world.printpolicy(grid, policy)
 
 
+def run_windy_probabilistic(grid, policy, env_probs, gamma=.9, stop_threshold=.001):
+  max_change = 1000
+  states = grid.all_states()
+  action_space = policy
+  rewards = {}
+  transition_probability = env_probs.copy()
+
+  iii = 0
+  while max_change > stop_threshold:
+    iii += 1
+    max_change = 0
+    for i in range(states.shape[0]):
+      for j in range(states.shape[1]):
+        new_val = 0
+        current_s = (i, j)
+        possible_actions = action_space.get(current_s, {})
+        for act in possible_actions:
+          possbile_outcomes = transition_probability.get((current_s, act), None)
+          if possbile_outcomes is None:
+            next_states = {grid.get_next_state_absolute(current_s, act): 1.}
+          else:
+            next_states = possbile_outcomes
+          action_probability = possible_actions[act]
+
+          for next_s in next_states:
+            pro_coef = next_states[next_s]*action_probability
+            value = grid.map[next_s]
+            # next state reward
+            ns_reward = grid.rewards.get(next_s, 0)
+            new_val = new_val + (ns_reward+value*gamma)*pro_coef
+        diff = np.abs(grid.map[current_s[0]][current_s[1]] - new_val)
+        grid.set_value(current_s, new_val)
+        # grid.rewards[current_s] = new_val
+        if diff > max_change:
+          max_change = diff
+
+  print("Number of iterations: {}".format(iii))
+  world.printpolicy(grid, policy)
+
+
 
 if __name__ == "__main__":
   policy = {(2, 0): "U", (1, 0): "U", (0, 0): "R", (0, 1): "R",
@@ -90,6 +130,6 @@ if __name__ == "__main__":
   gamma = .9
   env_probs = {((2, 0), "U"): {(1, 0): 1.},
            ((1, 2), "U"): {(0, 2): .5, (1, 3): .5}}
-  run_deterministic(world.standard_grid(), policy)
-  run_windy(world.standard_grid(), policy, env_probs)
-  # run_windy_probabilistic(world.standard_grid(), policy_proba, env_probs)
+  # run_deterministic(world.standard_grid(), policy)
+  # run_windy(world.standard_grid(), policy, env_probs)
+  run_windy_probabilistic(world.standard_grid(), policy_proba, env_probs)
