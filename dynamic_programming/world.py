@@ -150,7 +150,8 @@ class Gridworld:
     """
     i = self.position[0]
     j = self.position[1]
-    if action in self.actions[self.position]:
+    if self.position in self.actions and \
+        action in self.actions[self.position]:
       if action == "U":
         i = self.position[0] - 1
       elif action == "D":
@@ -174,7 +175,8 @@ class Gridworld:
     Returns:
 
     """
-    if action in self.actions[state]:
+    if state in self.actions and \
+        action in self.actions[state]:
       i = state[0]
       j = state[1]
       if action == "U":
