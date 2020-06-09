@@ -3,7 +3,7 @@ import numpy as np
 
 import world
 
-def run(grid, policy, gamma=.9, stop_threshold=.001):
+def run_deterministic(grid, policy, gamma=.9, stop_threshold=.001):
   max_change = 1000
   states = grid.all_states()
   action_space = policy
@@ -37,10 +37,58 @@ def run(grid, policy, gamma=.9, stop_threshold=.001):
   world.printpolicy(grid, policy)
 
 
+def run_windy(grid, policy, probs, gamma=.9, stop_threshold=.001):
+  max_change = 1000
+  states = grid.all_states()
+  action_space = policy
+  rewards = {}
+  transition_probability = probs.copy()
+  # Creating transition probalitiy for all states.
+  for i in range(states.shape[0]):
+    for j in range(states.shape[1]):
+      actions = action_space.get((i, j), {})
+      for act in actions:
+        if ((i, j), act) in transition_probability:
+          continue
+      # if (i, j) not in transition_probability:
+        action = action_space.get((i, j), "Invalid")
+        transition_probability[((i, j), action)] = {
+          grid.get_next_state_absolute((i, j), action): 1.}
+
+  iii = 0
+  while max_change > stop_threshold:
+    iii += 1
+    max_change = 0
+    for i in range(states.shape[0]):
+      for j in range(states.shape[1]):
+        new_val = 0
+        current_s = (i, j)
+        possible_actions = action_space.get(current_s, {})
+        acc_reward = 0
+        for act in possible_actions:
+          next_states = transition_probability.get((current_s, act), {})
+          for next_s in next_states:
+            pro_coef = next_states[next_s]
+            value = grid.map[next_s]
+            # next state reward
+            ns_reward = grid.rewards.get(next_s, 0)
+            new_val = new_val + (ns_reward+value*gamma)*pro_coef
+        diff = np.abs(grid.map[current_s[0]][current_s[1]] - new_val)
+        grid.set_value(current_s, new_val)
+        # grid.rewards[current_s] = new_val
+        if diff > max_change:
+          max_change = diff
+
+  print("Number of iterations: {}".format(iii))
+  world.printpolicy(grid, policy)
+
 
 
 if __name__ == "__main__":
   policy = {(2, 0): "U", (1, 0): "U", (0, 0): "R", (0, 1): "R",
             (0, 2): "R", (1, 2): "U", (2, 1): "R", (2, 2): "U", (2, 3): "L"}
   gamma = .9
-  run(world.standard_grid(), policy)
+  probs = {((2, 0), "U"): {(1, 0): 1.},
+           ((1, 2), "U"): {(0, 2): .5, (1, 3): .5}}
+  run_windy(world.standard_grid(), policy, probs)
+  run_deterministic(world.standard_grid(), policy)

@@ -228,10 +228,11 @@ def printpolicy(grid, policy):
         print(block_str.format(empty[j], up[j], empty[j]), end="")
     print()
     for j in range(cols):
+      rounddigits = 4 if grid.map[i][j] > 0 else 3
       if (i, j) in grid.walls:
         print(wall_block, end="")
       else:
-        print(block_str.format(left[j], np.around(grid.map[i][j], 4), right[j]), end="")
+        print(block_str.format(left[j], np.around(grid.map[i][j], rounddigits), right[j]), end="")
     print()
     for j in range(cols):
       if (i, j) in grid.walls:
