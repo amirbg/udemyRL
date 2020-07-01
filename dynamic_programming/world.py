@@ -10,6 +10,8 @@ HERE_CHR = u"\u0040"
 TERM_CHR = u"\u002A"
 
 class Gridworld:
+  # Actions of a terminal state are empty.
+  # grid.map contains the values of states.
   def __init__(self, rows, cols, rewards, walls, start_position=None):
     """Gridworld constructor.
 
