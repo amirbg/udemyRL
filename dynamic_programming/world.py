@@ -12,7 +12,7 @@ TERM_CHR = u"\u002A"
 class Gridworld:
   # Actions of a terminal state are empty.
   # grid.map contains the values of states.
-  def __init__(self, rows, cols, rewards, walls, start_position=None):
+  def __init__(self, rows, cols, rewards, walls, start_position=None, step_cost=0):
     """Gridworld constructor.
 
     Args:
@@ -35,9 +35,9 @@ class Gridworld:
       current_state = start_position
     self.walls = walls
     # TODO: Add more complext positioning if needed
-    self.actions, self.rewards = self.setup_map(rewards, walls)
+    self.actions, self.rewards = self.setup_map(rewards, walls, step_cost)
 
-  def setup_map(self, rewards, walls, terminal_success_val=1, terminal_failure_val=-1):
+  def setup_map(self, rewards, walls, step_cost=0, terminal_success_val=1, terminal_failure_val=-1):
     #TODO: Set rewards
     terminal_states = []
     for k in rewards.keys():
@@ -46,6 +46,8 @@ class Gridworld:
     for i in range(self.map.shape[0]):
       for j in range(self.map.shape[1]):
         self.map[i][j] = 0
+        if (i, j) not in rewards and step_cost:
+          rewards[(i, j)] = step_cost
     actions = self._generate_actions(walls, terminal_states)
     self.rewards = rewards
     return actions, rewards
@@ -248,9 +250,9 @@ def printpolicy(grid, policy):
 
 
 
-def standard_grid():
+def standard_grid(step_cost=0):
   rewards = {(0, 3): 1, (1, 3): -1}
-  g = Gridworld(3, 4, rewards, [(1, 1)], (2, 0))
+  g = Gridworld(3, 4, rewards, [(1, 1)], (2, 0), step_cost)
   return g
 
 def test_grid():
