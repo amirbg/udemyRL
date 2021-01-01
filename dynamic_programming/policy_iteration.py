@@ -162,7 +162,5 @@ if __name__ == "__main__":
   run_probabilistic_policy_iteration(world.standard_grid(step_cost), env_probs, step_cost)
   step_cost = -.2
   run_probabilistic_policy_iteration(world.standard_grid(step_cost), env_probs, step_cost)
-  step_cost = -.4
-  run_probabilistic_policy_iteration(world.standard_grid(step_cost), env_probs, step_cost)
   step_cost = -2
   run_probabilistic_policy_iteration(world.standard_grid(step_cost), env_probs, step_cost=step_cost)
