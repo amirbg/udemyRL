@@ -19,28 +19,6 @@ PACKAGE_PARENT = '..'
 file_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.normpath(os.path.join(file_dir, "..")))
 
-def get_random_action(a, epsilon=.1):
-  if np.random.random() > epsilon:
-    return a
-  else:
-    return np.random.choice(ALL_POSSIBLE_ACTIONS)
-
-def epsilon_greedy(grid, Q, gamma, epsilon):
-  state = grid.current_state()
-  max_q = -10000
-  greedy_action = None
-  for ac in ALL_POSSIBLE_ACTIONS:
-    ns = grid.get_next_state(state, ac)
-    action_max = grid.rewards[ns]+gamma*max(Q[ns].values())
-    if action_max > max_q:
-      greedy_action = ac
-  if np.random.random() > epsilon:
-    return greedy_action
-  else:
-    return np.random.choice(ALL_POSSIBLE_ACTIONS)
-
-
-
 
 def evaluate_policy(grid):
   #State value function
